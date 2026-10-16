@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Алгоритмическая предвзятость · Разбор главы</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800;9..144,900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F1F0EC;
+  --paper:#FDFCF9;
+  --ink:#0A0A0A;
+  --ink-2:#3A3A38;
+  --ink-3:#6E6E6A;
+  --line:#D9D6CC;
+  --line-2:#EBE8DF;
+  --crimson:#9F1239;
+  --crimson-2:#7F1D1D;
+  --emerald:#065F46;
+  --amber:#92400E;
+  --violet:#5B21B6;
+  --indigo:#1E3A8A;
+  --shadow:0 24px 70px rgba(20,20,20,.10), 0 6px 16px rgba(20,20,20,.04);
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  font-size:16px;
+  background:var(--bg);
+  color:var(--ink);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  font-feature-settings:"cv02","cv03","cv11";
+}
+
+/* ============ TOOLBAR ============ */
+.toolbar{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 32px;
+  background:rgba(241,240,236,.92);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--line-2);
+}
+.toolbar__brand{
+  font-family:'JetBrains Mono',monospace;
+  font-weight:600;font-size:13px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--ink-2);
+}
+.toolbar__brand span{color:var(--crimson)}
+.toolbar__actions{display:flex;gap:12px}
+.btn{
+  font-family:'Inter',sans-serif;font-weight:700;font-size:14px;
+  padding:12px 22px;border-radius:100px;border:1px solid var(--ink);
+  background:var(--ink);color:var(--paper);cursor:pointer;
+  display:inline-flex;align-items:center;gap:10px;
+  transition:all .25s ease;
+}
+.btn:hover{background:var(--crimson);border-color:var(--crimson);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn:disabled{opacity:.6;cursor:wait}
+.btn--ghost{background:transparent;color:var(--ink)}
+.btn--ghost:hover{background:var(--ink);color:var(--paper)}
+.btn svg{width:16px;height:16px;flex-shrink:0}
+
+/* ============ DOCUMENT ============ */
+.document{
+  max-width:210mm;
+  margin:0 auto;
+  padding:100px 0 140px;
+  display:flex;flex-direction:column;gap:44px;
+}
+.page{
+  width:210mm;
+  height:297mm;
+  box-sizing:border-box;
+  background:var(--paper);
+  position:relative;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+  padding:16mm 14mm 18mm;
+  display:flex;
+  flex-direction:column;
+  page-break-after:always;
+  break-after:page;
+  page-break-inside:avoid;
+  break-inside:avoid;
+}
+
+/* ============ PAGE CHROME ============ */
+.page__num{
+  position:absolute;top:8mm;right:14mm;
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;letter-spacing:.22em;
+  color:var(--ink-3);font-weight:500;
+}
+.page__mark{
+  position:absolute;top:8mm;left:14mm;
+  display:flex;align-items:center;gap:10px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:9.5px;letter-spacing:.26em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:500;
+}
+.page__mark::before{
+  content:"";width:22px;height:2px;background:var(--crimson);
+}
+.page__footer{
+  position:absolute;bottom:8mm;left:14mm;right:14mm;
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ink-3);
+  border-top:1px solid var(--line-2);
+  padding-top:8px;font-weight:500;
+}
+
+/* ============ COVER ============ */
+.cover{
+  background:
+    radial-gradient(ellipse at 85% 15%, rgba(159,18,57,.08), transparent 55%),
+    radial-gradient(ellipse at 10% 85%, rgba(30,58,138,.06), transparent 50%),
+    var(--paper);
+  padding:16mm 14mm 18mm;
+}
+.cover__inner{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+  z-index:2;
+  min-height:0;
+}
+.cover__top{
+  display:flex;align-items:center;justify-content:space-between;
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:500;
+}
+.cover__top .dot{display:inline-flex;align-items:center;gap:12px}
+.cover__top .dot::before{
+  content:"";width:8px;height:8px;background:var(--crimson);
+  border-radius:50%;display:inline-block;
+}
+.cover__main{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:16mm 0;
+  position:relative;
+}
+.cover__number{
+  font-family:'Fraunces',serif;
+  font-weight:900;
+  font-size:170px;
+  line-height:.82;
+  letter-spacing:-.05em;
+  color:var(--ink);
+  font-variation-settings:"opsz" 144;
+}
+.cover__number em{
+  font-style:normal;
+  color:var(--crimson);
+  font-weight:400;
+  font-size:60%;
+  vertical-align:top;
+  letter-spacing:-.02em;
+}
+.cover__title{
+  font-family:'Fraunces',serif;
+  font-weight:500;
+  font-size:26px;
+  line-height:1.2;
+  letter-spacing:-.015em;
+  color:var(--ink-2);
+  margin-top:24px;
+  max-width:560px;
+}
+.cover__title strong{font-weight:700;color:var(--ink)}
+.cover__sub{
+  font-size:15px;color:var(--ink-3);max-width:480px;
+  margin-top:18px;line-height:1.55;
+}
+.cover__meta{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:20px;
+  padding-top:26px;
+  border-top:1px solid var(--line);
+}
+.cover__meta dt{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--ink-3);margin-bottom:7px;font-weight:500;
+}
+.cover__meta dd{
+  font-size:12.5px;color:var(--ink);
+  line-height:1.4;margin:0;padding:0;
+}
+.cover__meta dd.muted{font-size:11.5px;color:var(--ink-3)}
+
+/* ============ SECTION HEADINGS ============ */
+.kicker{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9.5px;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--crimson);font-weight:600;
+  margin-bottom:14px;
+  display:flex;align-items:center;gap:12px;
+}
+.kicker::before{content:"";width:16px;height:2px;background:var(--crimson)}
+.h-sec{
+  font-family:'Fraunces',serif;
+  font-weight:600;
+  font-size:32px;
+  line-height:1.08;
+  letter-spacing:-.02em;
+  margin-bottom:10px;
+}
+.h-sec em{font-style:italic;color:var(--crimson);font-weight:500}
+.lede{
+  font-size:14px;color:var(--ink-2);max-width:560px;
+  line-height:1.6;margin-bottom:22px;
+}
+
+/* ============ STATS ============ */
+.stats{
+  display:grid;grid-template-columns:repeat(2,1fr);
+  gap:0;
+  border-top:1px solid var(--line);
+  border-left:1px solid var(--line);
+  margin-bottom:22px;
+}
+.stat{
+  border-right:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  padding:18px 18px 20px;
+  position:relative;
+}
+.stat__num{
+  font-family:'Fraunces',serif;
+  font-weight:700;
+  font-size:42px;line-height:1;
+  letter-spacing:-.03em;
+  color:var(--ink);
+}
+.stat__num sup{font-size:18px;color:var(--crimson);vertical-align:top;margin-left:3px;font-weight:500}
+.stat__label{
+  font-size:12px;color:var(--ink-2);
+  margin-top:10px;line-height:1.5;
+}
+.stat__src{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--ink-3);margin-top:10px;font-weight:500;
+}
+
+/* ============ QUOTE ============ */
+.quote{
+  border-left:3px solid var(--crimson);
+  padding:8px 0 8px 20px;
+  margin:18px 0;
+  font-family:'Fraunces',serif;
+  font-size:16px;line-height:1.5;
+  color:var(--ink);
+  font-style:italic;
+  font-weight:400;
+  max-width:600px;
+}
+.quote cite{
+  display:block;font-style:normal;
+  font-family:'JetBrains Mono',monospace;
+  font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ink-3);margin-top:12px;font-weight:500;
+}
+
+/* ============ CALLOUT ============ */
+.callout{
+  border:1px solid var(--line);
+  border-left:3px solid var(--crimson);
+  padding:14px 18px;
+  margin:14px 0;
+  position:relative;
+  background:linear-gradient(180deg,rgba(159,18,57,.03),transparent);
+}
+.callout__title{
+  font-family:'Fraun ces',serif;
+  font-weight: font600;font-size:13-sizepx;
+  margin:-bottom:7px;letter-spacing:-.01em;line-height:1.3;
+}
+.callout p{font-size:11.5px;color:var(--ink-2);line-height:1.55}
+.callout p + p{margin-top:6px}
+
+/* ============ GRID ============ */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:16px 0}
+.g2 > *{min-width:0}
+
+/* ============ CHIP ============ */
+.chip{
+  display:inline-block;
+  font-family:'JetBrains Mono',monospace;
+9px;letter-spacing:.16em;text-transform:uppercase;
+  padding:5px 10px;border:1px solid var(--line);
+  color:var(--ink-2);margin:0 5px 6px 0;font-weight:500;
+}
+.chip--c{border-color:var(--crimson);color:var(--crimson)}
+.chip--e{border-color:var(--emerald);color:var(--emerald)}
+
+/* ============ LIST ============ */
+.list-num{counter-reset:ln;margin:12px 0}
+.list-num li{
+  counter-increment:ln;
+  list-style:none;
+  position:relative;
+  padding:11px 0 11px 42px;
+  border-bottom:1px solid var(--line-2);
+  font-size:12.5px;line-height:1.55;color:var(--ink-2);
+}
+.list-num li::before{
+  content:counter(ln,decimal-leading-zero);
+  position:absolute;left:0;top:11px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;letter-spacing:.1em;
+  color:var(--crimson);font-weight:600;
+}
+.list-num li strong{color:var(--ink);font-weight:700}
+
+/* ============ BARS ============ */
+.bars{margin:14px 0}
+.bar{margin-bottom:12px}
+.bar__head{
+  display:flex;justify-content:space-between;align-items:baseline;
+  margin-bottom:6px;
+  font-size:12px;color:var(--ink-2);
+}
+.bar__head b{
+  font-family:'Fraunces',serif;
+  font-weight:700;font-size:15px;color:var(--ink);
+}
+.bar__track{height:7px;background:var(--line-2);position:relative;overflow:hidden}
+.bar__fill{position:absolute;top:0;left:0;bottom:0;background:var(--crimson)}
+.bar__fill--e{background:var(--emerald)}
+.bar__fill--a{background:var(--amber)}
+.bar__fill--v{background:var(--violet)}
+
+/* ============ TIMELINE ============ */
+.timeline{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:12px;margin:18px 0;
+}
+.tl{
+  position:relative;
+  padding:16px 14px 18px;
+  border:1px solid var(--line);
+  background:var(--paper);
+}
+.tl::before{
+  content:"";pxposition:absolute;top:-1;left:-1px;right:-1px;height:3px;
+  background:var(--crimson);
+}
+.tl:nth-child(2)::before{background:var(--amber)}
+.tl:nth-child(3)::before{background:var(--emerald)}
+.tl__day{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--ink-3);margin-bottom:9px;font-weight:500;
+}
+.tl__title{
+  font-family:'Fraunces',serif;
+  font-weight:600;font-size:15px;line-height:1.2;
+  margin-bottom:10px;letter-spacing:-.01em;
+}
+.tl__body{font-size:11.5px;color:var(--ink-2);line-height:1.5}
+
+/* ============ ARTICLE MAP ============ */
+.article-map{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin:14px 0;
+}
+.art{
+  border:1px solid var(--line);
+  padding:10px 11px;
+  position:relative;
+  background:var(--paper);
+  min-height:64px;
+}
+.art__n{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;letter-spacing:.14em;
+  color:var(--ink-3);font-weight:600;
+  margin-bottom:5px;
+}
+.art__t{
+  font-size:10.5px;
+  color:var(--ink);
+  line-height:1.35;
+  font-weight:500;
+}
+.art--general{border-top:2px solid var(--crimson)}
+.art--power{border-top:2px solid var(--emerald)}
+.art--mark{border-top:2px solid var(--amber)}
+.art--final{border-top:2px solid var(--violet)}
+
+/* ============ EXPERT ============ */
+.expert{
+  display:grid;grid-template-columns:120px 1fr;gap:22px;
+  align-items:center;
+  padding:18px 0;
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  margin:16px 0;
+}
+.expert__photo{
+  width:120px;height:120px;
+  border-radius:50%;
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#0A0A0A 0%,#2c2c2a 100%);
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--line);
+}
+.expert__photo::before{
+  content:"";position:absolute;inset:8px;
+  border:1px dashed rgba(253,252,249,.3);border-radius:50%;
+  z-index:2;pointer-events:none;
+}
+.expert__photo img{
+  width:100%;height:100%;object-fit:cover;
+  position:absolute;inset:0;z-index:1;
+}
+.expert__name{
+  font-family:'Fraunces',serif;
+  font-weight:700;font-size:20px;letter-spacing:-.02em;
+  margin-bottom:6px;
+}
+.expert__role{font-size:11.5px;color:var(--ink-2);margin-bottom:10px;line-height:1.5}
+.expert__links{display:flex;gap:14px;rimflex-wrap:wrap}
+.expert__links a{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--cson);text-decoration:none;
+  border-bottom:1px solid var(--crimson);padding-bottom:3px;
+  font-weight:500;
+}
+.expert__links a:hover{color:var(--emerald);border-color:var(--emerald)}
+
+/* ============ CTA ============ */
+.cta{
+  background:var(--ink);color:var(--paper);
+  padding:24px 26px;margin-top:auto;
+  position:relative;overflow:hidden;
+}
+.cta::before{
+  content:"";position:absolute;top:-40px;right:-40px;
+  width:160px;height:160px;border:1px solid rgba(253,252,249,.15);
+  border-radius:50%;
+}
+.cta::after{
+  content:"";position:absolute;bottom:-60px;left:-20px;
+  width:120px;height:120px;border:1px solid rgba(253,252,249,.1);
+  border-radius:50%;
+}
+.cta h3{
+  font-family:'Fraunces',serif;
+  font-weight:600;font-size:19px;line-height:1.2;
+  margin-bottom:10px;position:relative;z-index:2;letter-spacing:-.015em;
+}
+.cta p{font-size:12px;color:rgba(253,252,249,.78);line-height:1.6;position:relative;z-index:2;max-width:440px}
+.cta__meta{
+  display:flex;gap:22px;margin-top:16px;position:relative;z-index:2;
+  font-family:'JetBrains Mono',monospace;
+  font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:rgba(253,252,249,.55);font-weight:500;
+}
+
+/* ============ DECO ============ */
+.deco{position:absolute;inset:0;pointer-events:none;z-index:0}
+
+/* ============ PRINT ============ */
+@page{size:210mm 297mm;margin:0}
+@media print{
+  html, body{
+    margin:0 !important;
+    padding:0 !important;
+    width:210mm;
+    background:var(--paper);
+  }
+  .toolbar{display:none !important}
+  .document{
+    padding:0 !important;
+    margin:0 !important;
+    gap:0 !important;
+    max-width:none !important;
+    display:block !important;
+  }
+  .page{
+    box-shadow:none !important;
+    margin:0 !important;
+    page-break-after:always;
+    break-after:page;
+    page-break-inside:avoid;
+    break-inside:avoid;
+  }
+  .page:last-child{page-break-after:auto;break-after:auto}
+}
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="toolbar__brand">Алгоритмическая <span>предвзятость</span> · Разбор</div>
+  <div class="toolbar__actions">
+    <button class="btn btn--ghost" onclick="window.print()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg>
+      Печать
+    </button>
+    <button class="btn" id="downloadBtn" onclick="downloadPDF()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+      <span id="downloadText">Скачать PDF</span>
+    </button>
+  </div>
+</div>
+
+<main class="document" id="document">
+
+<!-- ==================== PAGE 1 · COVER ==================== -->
+<section class="page cover">
+  <svg class="deco" viewBox="0 0 210 297" preserveAspectRatio="none">
+    <circle cx="175" cy="70" r="48" fill="none" stroke="#9F1239" stroke-width="0.4" opacity="0.5"/>
+    <circle cx="175" cy="70" r="32" fill="none" stroke="#1E3A8A" stroke-width="0.4" opacity="0.5"/>
+    <circle cx="175" cy="70" r="17" fill="none" stroke="#0A0A0A" stroke-width="0.4" opacity="0.35"/>
+    <circle cx="175" cy="70" r="3" fill="#9F1239" opacity="0.6"/>
+    <circle cx="135" cy="35" r="2" fill="#1E3A8A" opacity="0.5"/>
+    <circle cx="205" cy="115" r="2" fill="#9F1239" opacity="0.5"/>
+    <line x1="135" y1="35" x2="175" y2="70" stroke="#9F1239" stroke-width="0.3" opacity="0.4"/>
+    <line x1="205" y1="115" x2="175" y2="70" stroke="#1E3A8A" stroke-width="0.3" opacity="0.4"/>
+    <path d="M 0 265 Q 40 255 80 265 T 160 265 T 210 263" fill="none" stroke="#9F1239" stroke-width="0.4" opacity="0.35"/>
+  </svg>
+
+  <div class="cover__inner">
+    <div class="cover__top">
+      <span class="dot">Разбор главы · 2026</span>
+      <span>Глава 3.2</span>
+    </div>
+
+    <div class="cover__main">
+      <div class="cover__number">
+        3.2<em>· Bias</em>
+      </div>
+      <div class="cover__title">
+        <strong>Алгоритмическая предвзятость</strong> и как с ней бороться: от судебных исков к системной защите
+      </div>
+      <p class="cover__sub">
+        Разбор главы из книги «Записки директора по искусственному интеллекту».
+        Как алгоритмы автоматизируют и масштабируют предвзятость, почему
+        «объективные данные» — самое опасное заблуждение, и что делать уже сейчас.
+      </p>
+    </div>
+
+    <dl class="cover__meta">
+      <div>
+        <dt>Автор</dt>
+        <dd>Алексей Прохоров</dd>
+        <dd class="muted">CAIO · автор книги</dd>
+      </div>
+      <div>
+        <dt>Основа</dt>
+        <dd>Глава 3.2</dd>
+        <dd class="muted">книги «Записки директора по ИИ»</dd>
+      </div>
+      <div>
+        <dt>Формат</dt>
+        <dd>13 страниц</dd>
+        <dd class="muted">аналитика · кейсы · данные</dd>
+      </div>
+      <div>
+        <dt>Ключевые источники</dt>
+        <dd>MIT · IDC · NIST</dd>
+        <dd class="muted">Российская практика 2025–2026</dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+<!-- ==================== PAGE 2 · ABOUT ==================== -->
+<section class="page">
+  <div class="page__mark">О разборе</div>
+  <div class="page__num">02 / 13</div>
+
+  <div style="margin-top:14mm;display:flex;flex-direction:column;flex:1">
+    <div class="kicker">О чём этот разбор</div>
+    <h2 class="h-sec">Предвзятость, которую<br>алгоритмы <em>масштабируют</em></h2>
+    <p class="lede">
+      Алгоритмы не устраняют предвзятость. Они её автоматизируют, масштабируют
+      и, что самое страшное, легитимизируют под видом «объективных данных».
+      Этот разбор — о том, как распознать проблему и выстроить систему защиты.
+    </p>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat__num">95<sup>%</sup></div>
+        <div class="stat__label">ИИ-пилотов не дают измеримого эффекта — во многом из-за скрытой предвзятости</div>
+        <div class="stat__src">MIT · 2025</div>
+      </div>
+      <div class="stat">
+        <div class="stat__num">137<sup>×</sup></div>
+        <div class="stat__label">больше шансов быть ложно идентифицированным у темнокожих в тестах полицейских систем</div>
+        <div class="stat__src">NPL · 2025</div>
+      </div>
+      <div class="stat">
+        <div class="stat__num">1.1<sup>млрд</sup></div>
+        <div class="stat__label">заявок отклонено через Workday — коллективный иск на «сотни миллионов» участников</div>
+        <div class="stat__src">Mobley v. Workday</div>
+      </div>
+      <div class="stat">
+        <div class="stat__num">62<sup>%</sup></div>
+        <div class="stat__label">HR-специалистов не знают, как устроены используемые ими ИИ-системы</div>
+        <div class="stat__src">Технологии доверия · 2025</div>
+      </div>
+    </div>
+
+    <div class="g2" style="margin-top:18px">
+      <div>
+        <div class="kicker">Что внутри</div>
+        <ol class="list-num">
+          <li><strong>Громкие дела</strong> — Workday, Amazon, Eightfold и российские прецеденты.</li>
+          <li><strong>Источники предвзятости</strong> — от данных до выбора метрики.</li>
+          <li><strong>Четыре уровня защиты</strong> — от превентивного аудита до человека в цикле.</li>
+          <li><strong>Fairness-метрики</strong> — что измерять и как не обмануть себя.</li>
+          <li><strong>Российская практика</strong> — суды, кодексы, законопроекты.</li>
+          <li><strong>Практический чек-лист</strong> — что делать уже сейчас.</li>
+        </ol>
+      </div>
+      <div>
+        <div class="kicker">Кому полезно</div>
+        <div class="callout" style="margin-top:0">
+          <div class="callout__title">Руководителям</div>
+          <p>Понять, где скрывается риск, и как его оценить до того, как он станет судебным иском.</p>
+        </div>
+        <div class="callout">
+          <div class="callout__title">HR и комплаенсу</div>
+          <p>Получить инструменты для аудита ИИ-систем в найме и оценке персонала.</p>
+        </div>
+        <div class="callout">
+          <div class="callout__title">Разработчикам</div>
+          <p>Разобраться в Fairness-метриках и методах интерпретируемости (SHAP, LIME).</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:16px;border-left-color:var(--emerald)">
+      <div class="callout__title">Про автора</div>
+      <p>Разбор подготовил Алексей Прохоров — директор по развитию технологий искусственного интеллекта, автор книги «Записки директора по искусственному интеллекту». В своей практике он прошёл путь от запуска ИИ-скрининга резюме до его остановки после обнаружения системной предвзятости — и выстраивания четырёхуровневой системы защиты.</p>
+      <div class="expert__links" style="margin-top:12px">
+        <a href="https://max.ru/alproailife" target="_blank" rel="noopener">Подписаться → MAX-канал</a>
+        <a href="mailto:director.brands@yandex.ru?subject=Заказ книги">Заказать книгу</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="page__footer">
+    <span>Алгоритмическая предвзятость · Разбор</span>
+    <span>О разборе</span>
+  </div>
+</section>
+
+<!-- ==================== PAGE 3 · SCALE ==================== -->
+<section class="page">
+  <div class="page__mark">01 · Масштаб</div>
+  <div class="page__num">03 / 13</div>
+
+  <div style="margin-top:14mm">
+    <div class="kicker">Масштаб проблемы</div>
+    <h2 class="h-sec">Предвзятость —<br>это <em>не баг, а фича</em> данных</h2>
+
+    <blockquote class="quote" style="margin-top:0">
+      Алгоритмы не устраняют предвзятость. Они её автоматизируют,
+      масштабируют и, что самое страшное, легитимизируют под видом
+      «объективных данных».
+      <cite>Из книги «Записки директора по ИИ»</cite>
+    </blockquote>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat__num">2025</div>
+        <div class="stat__label">год, когда американские суды начали всерьёз рассматривать иски об алгоритмической дискриминации</div>
+        <div class="stat__src">Судебная практика США</div>
+      </div>
+      <div class="stat">
+        <div class="stat__num">97.9<sup>%</sup></div>
+        <div class="stat__label">точность распознавания лиц азиатов против 86.9% для темнокожих — разрыв в 11%</div>
+        <div class="stat__src">NPL · Великобритания</div>
+      </div>
+      <div class="stat">
+        <div class="stat__num">9.9<sup>%</sup></div>
+        <div class="stat__label">ложных срабатываний у темнокожих женщин против 0.4% у темнокожих мужчин</div>
+        <div class="stat__src">NPL · 2025</div>
+      </div>
+      <div class="stat">
+        <div class="stat__num">44<sup>%</sup></div>
+        <div class="stat__label">HR-специалистов фиксировали случаи, когда алгоритмы рекомендовали нерелевантных кандидатов</div>
+        <div class="stat__src">Технологии доверия · 2025</div>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:16px">
+      <div class="callout__title">Ключевой инсайт</div>
+      <p>
+        Если человек, принимающий несправедливое решение, может быть привлечён
+        к ответственности, объяснить свои мотивы или хотя бы почувствовать
+        угрызения совести, то алгоритм просто выдаёт результат. Без объяснений.
+        Без сожалений. Без возможности оспорить.
+      </p>
+    </div>
+
+    <div class="kicker" style="margin-top:16px">Российский контекст</div>
+    <div class="callout" style="border-left-color:var(--indigo)">
+      <div class="callout__title">Исследование нейросети Кохонена</div>
+      <p>Учёные обнаружили алгоритмическую предвзятость в социально-экономической кластеризации российских регионов: одни регионы систематически «дискриминировались» моделью, что приводило к искажённым выводам в научных публикациях[reference:0].</p>
+    </div>
+  </div>
+
+  <div class="page__footer">
+    <span>Алгоритмическая предвзятость · Разбор</span>
+    <span>01 · Масштаб</span>
+  </div>
+</section>
+
+<!-- ==================== PAGE 4 · LANDMARK CASES ==================== -->
+<section class="page">
+  <div class="page__mark">02 · Громкие дела</div>
+  <div class="page__num">04 / 13</div>
+
+  <div style="margin-top:14mm">
+    <div class="kicker">Судебные прецеденты</div>
+    <h2 class="h-sec">Иски, которые<br>изменили <em>правила игры</em></h2>
+
+    <div class="timeline">
+      <div class="tl">
+        <div class="tl__day">2024–2025</div>
+        <div class="tl__title">Mobley против Workday</div>
+        <p class="tl__body">1,1 млрд заявок отклонено. Коллективный иск может включать «сотни миллионов» участников. Вендор впервые признан ответственным как «агент» работодателя.</p>
+      </div>
+      <div class="tl">
+        <div class="tl__day">Август 2025</div>
+        <div class="tl__title">Harper против Sirius XM</div>
+        <p class="tl__body">Алгоритм использовал прокси-признаки (вузы, индексы, историю) для фактической расовой селекции. 150 заявок — 149 отказов.</p>
+      </div>
+      <div class="tl">
+        <div class="tl__day">Январь 2026</div>
+        <div class="tl__title">Kistler против Eightfold AI</div>
+        <p class="tl__body">1 млрд работников в базе, рейтинг 0–5, отсев до просмотра человеком. Новый фронт: отсутствие прозрачности как основание для иска.</p>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:18px;border-left-color:var(--amber)">
+      <div class="callout__title">Урок Amazon</div>
+      <p>Система обучалась на 10-летнем архиве резюме. Поскольку отрасль доминируется мужчинами, модель «научилась», что успешные кандидаты — мужчины. Начала «браковать» резюме со словами вроде «женский шахматный клуб» и отдавать предпочтение «мужским» глаголам. В 2017 году проект свернули.</p>
+    </div>
+
+    <div class="kicker" style="margin-top:16px">Российские прецеденты</div>
+    <div class="g2" style="margin-top:8px">
+      <div class="callout" style="margin-top:0;border-left-color:var(--crimson)">
+        <div class="callout__title">Дело Рожновой · Москва, 2025</div>
+        <p>Категорийный менеджер ООО «АЛИСА» была уволена после внедрения ИИ-системы, частично заменившей её функции. Суд восстановил сотрудницу, но обосновал решение общими нормами ТК — **прозрачность ИИ в российском праве не закреплена**[reference:1].</p>
+      </div>
+      <div class="callout" style="margin-top:0;border-left-color:var(--crimson)">
+        <div class="callout__title">Барнаул · отказ в пособии</div>
+        <p>Одинокой матери отказали в детском пособии из-за нестандартного ответа в форме. Сотрудники соцфонда «доверились цифровым алгоритмам». Суд признал отказ незаконным и взыскал компенсацию[reference:2].</p>
+      </div>
+    </div>
+
+    <blockquote class="quote" style="margin-top:14px">
+      Регуляторы начинают рассматривать заявления о справедливости
+      не как маркетинговые слоганы, а как юридически обязывающие
+      заверения, за которые придётся отвечать.
+      <cite>Из книги «Записки директора по ИИ»</cite>
+    </blockquote>
+  </div>
+
+  <div class="page__footer">
+    <span>Алгоритмическая предвзятость · Разбор</span>
+    <span>02 · Громкие дела</span>
+  </div>
+</section>
+
+<!-- ==================== PAGE 5 · SOURCES ==================== -->
+<section class="page">
+  <div class="page__mark">03 · Источники</div>
+  <div class="page__num">05 / 13</div>
+
+  <div style="margin-top:14mm">
+    <div class="kicker">Почему алгоритмы ошибаются</div>
+    <h2 class="h-sec">Четыре источника<br><em>предвзятости</em></h2>
+
+    <div class="g2" style="margin-top:6px">
+      <div class="callout" style="margin-top:0;border-left-color:var(--crimson)">
+        <div class="callout__title">01 · Историческая предвзятость в данных</div>
+        <p>Модели обучаются на исторических данных, которые отражают неравенства прошлого. Если в отрасли доминировали мужчины, модель «выучит», что пол — предиктор успеха.</p>
+      </div>
+      <div class="callout" style="margin-top:0;border-left-color:var(--amber)">
+        <div class="callout__title">02 · Недостаточная репрезентативность</div>
+        <p>Системы распознавания лиц, обученные на изображениях белых мужчин, систематически хуже работают на женщинах и людях с тёмной кожей.</p>
+      </div>
+      <div class="callout" style="margin-top:0;border-left-color:var(--violet)">
+        <div class="callout__title">03 · Ошибки разметки</div>
+        <p>Данные размечаются людьми, и эти люди привносят свои предубеждения. Если аннотаторы — одна демографическая группа, их суждения отражают её нормы.</p>
+      </div>
+      <div class="callout" style="margin-top:0;border-left-color:var(--indigo)">
+        <div class="callout__title">04 · Выбор целевой метрики</div>
+        <p>Если модель оптимизируется на «время на платформе», она начнёт рекомендовать всё более экстремальный контент. Это не заложено разработчиками, но становится эмерджентным свойством.</p>
+      </div>
+    </div>
+
+    <div class="kicker" style="margin-top:22px">Прокси-дискриминация — самый коварный враг</div>
+    <div class="callout" style="background:linear-gradient(180deg,rgba(159,18,57,.05),transparent);border-left-color:var(--crimson)">
+      <div class="callout__title">Даже если вы исключили защищённые признаки — алгоритм найдёт прокси</div>
+      <p style="margin-bottom:6px">Почтовый индекс коррелирует с расой и социоэкономическим статусом.</p>
+      <p style="margin-bottom:6px">Тип учебного заведения коррелирует с расой и классом.</p>
+      <p>Паттерны в описании опыта работы коррелируют с гендером.</p>
+    </div>
+
+    <div class="kicker" style="margin-top:16px">Личный кейс автора</div>
+    <div class="callout" style="border-left-color:var(--emerald)">
+      <div class="callout__title">Как я остановил проект ИИ-скрининга</div>
+      <p>В 2024 году я запускал пилот по ИИ-скринингу резюме. Исключил из модели все защищённые признаки — пол, возраст, расу. Был уверен в объективности. Через три месяца аудит показал: модель систематически занижала рейтинг кандидатов из региональных вузов и завышала — из столичных. Корреляция с социоэкономическим статусом была очевидной. Мы немедленно приостановили проект.</p>
+    </div>
+  </div>
+
+  <div class="page__footer">
+    <span>Алгоритмическая предвзятость · Разбор</span>
+    <span>03 · Источники</span>
+  </div>
+</section>
+
+<!-- ==================== PAGE 6 · FOUR LEVELS ==================== -->
+<section class="page">
+  <div class="page__mark">04 · Защита</div>
+  <div class="page__num">06 / 13</div>
+
+  <div style="margin-top:14mm">
+    <div class="kicker">Четыре уровня защиты</div>
+    <h2 class="h-sec">Как выстроить<br><em>систему защиты</em></h2>
+
+    <div class="article-map" style="margin-top:6px">
+      <div class="art art--general">
+        <div class="art__n">УРОВЕНЬ 1</div>
+        <div class="art__t">Превентивный — правильные данные и команда</div>
+      </div>
+      <div class="art art--power">
+        <div class="art__n">УРОВЕНЬ 2</div>
+        <div class="art__t">Fairness-метрики и мониторинг</div>
+      </div>
+      <div class="art art--mark">
+        <div class="art__n">УРОВЕНЬ 3</div>
+        <div class="art__t">Интерпретируемость решений (SHAP, LIME)</div>
+      </div>
+      <div class="art art--final">
+        <div class="art__n">УРОВЕНЬ 4</div>
+        <div class="art__t">Человек в цикле принятия решений</div>
+      </div>
+      <div class="art art--general">
+        <div class="art__n">ПРАКТИКА</div>
+        <div class="art__t">Аудит данных до обучения модели</div>
+      </div>
+      <div class="art art--power">
+        <div class="art__n">ПРАКТИКА</div>
+        <div class="art__t">Механизм апелляции для сотрудников и кандидатов</div>
+      </div>
+    </div>
+
+    <div class="kicker" style="margin-top:22px">Уровень 1 · Превентивный</div>
+    <ol class="list-num">
+      <li><strong>Аудит данных.</strong> Анализ распределения демографических групп, сравнение с целевой популяцией, документирование дисбалансов.</li>
+      <li><strong>Диверсификация команды.</strong> Гомогенные команды создают системы со «слепыми пятнами». Над каждым проектом — люди с разным бэкграундом.</li>
+      <li><strong>Юридическая экспертиза вендоров.</strong> Запрос документации: как обучалась модель, какие Fairness-метрики измерялись, как обрабатываются дискриминационные результаты.</li>
+    </ol>
+
+    <div class="kicker" style="margin-top:16px">Уровень 2 · Fairness-метрики</div>
+    <div class="callout">
+      <div class="callout__title">Что измерять</div>
+      <p style="margin-bottom:6px">• Равенство вероятностей положительного исхода между группами</p>
+      <p style="margin-bottom:6px">• Равенство фактически истинных значений и частоты ложных срабатываний</p>
+      <p>• Равенство частоты положительных срабатываний</p>
+    </div>
+
+    <blockquote class="quote">
+      Разные Fairness-метрики часто конфликтуют. Нельзя одновременно
+      максимизировать демографические вероятности и равные шансы,
+      если базовая частота событий различается между группами.
+      <cite>Из книги «Записки директора по ИИ»</cite>
+    </blockquote>
+  </div>
+
+  <div class="page__footer">
+    <span>Алгоритмическая предвзятость · Разбор</span>
+    <span>04 · Защита</span>
+  </div>
+</section>
+
+<!-- ==================== PAGE 7 · EXPLAINABILITY ==================== -->
+<section class="page">
+  <div class="page__mark">05 · Интерпретируемость</div>
+  <div class="page__num">07 / 13</div>
+
+  <div style="margin-top:14mm">
+    <div class="kicker">Уровень 3 · Интерпретируемость</div>
+    <h2 class="h-sec">Показать,<br><em>почему</em> алгоритм принял решение</h2>
+
+    <p class="lede">
+      Современные модели глубокого обучения часто являются «чёрными ящиками».
+      Для критических применений — найм, кредитный скоринг — это неприемлемо.
+    </p>
+
+    <div class="g2" style="margin-top:6px">
+      <div class="callout" style="margin-top:0;border-left-color:var(--indigo)">
+        <div class="callout__title">SHAP</div>
+        <p>Метод, основанный на теории игр. Показывает, какой вклад каждая входная переменная внесла в конкретное предсказание.</p>
+      </div>
+      <div class="callout" style="margin-top:0;border-left-color:var(--violet)">
+        <div class="callout__title">LIME</div>
+        <p>Создаёт локальную интерпретируемую модель вокруг каждого предсказания. Помогает понять, почему модель приняла именно это решение.</p>
+      </div>
+    </div>
+
+    <div class="kicker" style="margin-top:22px">Уровень 4 · Человек в цикле</div>
+    <div class="callout" style="border-left-color:var(--emerald)">
+      <div class="callout__title">Что это значит на практике</div>
+      <p style="margin-bottom:8px">• Алгоритм помогает с приоритизацией и выявлением навыков, но финальное решение о приглашении на интервью принимает рекрутер.</p>
+      <p style="margin-bottom:8px">• Алгоритм предоставляет инсайты и выявляет аномалии, но оценку сотрудника даёт руководитель.</p>
+      <p>• Внедрён механизм апелляции: человек может оспорить решение алгоритма и запросить ручной пересмотр.</p>
+    </div>
+
+    <div class="kicker" style="margin-top:16px">Ключевой принцип</div>
+    <blockquote class="quote" style="max-width:640px">
+      ИИ должен поддерживать, а не заменять человеческое суждение.
+      Как показывают судебные процессы, ответственность за
+      дискриминационные решения несёт не только работодатель,
+      но и разработчик алгоритма.
+      <cite>Из книги «Записки директора по ИИ»</cite>
+    </blockquote>
+
+    <div class="stats" style="margin-top:16px">
+      <div class="stat">
+        <div class="stat__num">4</div>
+        <div class="stat__label">уровня защиты: от аудита данных до человека в цикле</div>
+        <div class="stat__src">Практика автора</div>
+      </div>
+      <div class="stat">
+        <div class="stat__num">70<sup>%</sup></div>
+        <div class="stat__label">сокращение времени комплаенс-активности после перехода на специализированную платформу</div>
+        <div class="stat__src">Практика автора</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page__footer">
+    <span>Алгоритмическая предвзятость · Разбор</span>
+    <span>05 · Интерпретируемость</span>
+  </div>
+</section>
+
+<!-- ==================== PAGE 8 · RUSSIAN REGULATION ==================== -->
+<section class="page">
+  <div class="page__mark">06 · Регулирование</div>
+  <div class="page__num">08 / 13</div>
+
+  <div style="margin-top:14mm">
+    <div class="kicker">Российский контекст</div>
+    <h2 class="h-sec">Как <em>регулируют</em><br>предвзятость в России</h2>
+
+    <div class="timeline">
+      <div class="tl">
+        <div class="tl__day">Июль 2025</div>
+        <div class="tl__title">Кодекс этики ЦБ РФ</div>
+        <p class="tl__body">Пять принципов для финансового сектора: человекоцентричность, справедливость, прозрачность, безопасность, ответственное управление рисками. Прямо запрещает дискриминацию по этническому, языковому, религиозному признаку[reference:3].</p>
+      </div>
+      <div class="tl">
+        <div class="tl__day">Март 2026</div>
+        <div class="tl__title">Законопроект Минцифры</div>
+        <p class="tl__body">«Право на объяснение»: гражданин может потребовать разъяснения, если решение, затрагивающее его права (отказ в кредите, лишении льготы), принято алгоритмом. В случаях, затрагивающих конституционные права, окончательное решение — за человеком[reference:4].</p>
+      </div>
+      <div class="tl">
+        <div class="tl__day">2026</div>
+        <div class="tl__title">ФЗ № 243-ФЗ</div>
+        <p class="tl__body">Закон о поддержке развития технологий ИИ. Вводит понятие суверенных и национальных моделей, обязанности разработчиков по безопасности и предотвращению дискриминации[reference:5].</p>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:18px;border-left-color:var(--emerald)">
+      <div class="callout__title">Презумпция ответственности</div>
+      <p>В законопроекте Минцифры закрепляется принципиальный сдвиг: <strong>если нейросеть допустила ошибку, отвечать будет владелец сервиса</strong>, если он не докажет, что предпринял все меры для предотвращения рисков. Бремя доказывания переносится с пострадавшего на разработчика[reference:6].</p>
+    </div>
+
+    <div class="kicker" style="margin-top:16px">Российские исследования</div>
+    <div class="g2" style="margin-top:8px">
+      <div class="callout" style="margin-top:0">
+        <div class="callout__title">Ценностная предвзятость нейросетей</div>
+        <p>Исследование нейросети «Шедеврум» выявило устойчивое доминирование западных культурных стереотипов: левые идеологии ассоциируются с упадком, либеральные — с позитивными образами американской государственности. Это противоречит декларируемому технологическому суверенитету[reference:7].</p>
+      </div>
+      <div class="callout" style="margin-top:0">
+        <div class="callout__title">Дискриминация в HR</div>
+        <p>Опрос 500 HR-специалистов (2025): 62% не имеют достаточных знаний о внутреннем устройстве используемых ИИ-систем. 44% фиксировали случаи, когда алгоритмы рекомендовали заведомо нерелевантных кандидатов[reference:8].</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="page__footer">
+    <span>Алгоритмическая предвзятость · Разбор</span>
+    <span>06 · Регулирование</span>
+  </div>
+</section>
+
+<!-- ==================== PAGE 9 · AUDIT ==================== -->
+<section class="page">
+  <div class="page__mark">07 · Аудит</div>
+  <div class="page__num">09 / 13</div>
+
+  <div style="margin-top:14mm">
+    <div class="kicker">Практический аудит</div>
+    <h2 class="h-sec">Как проверить<br>свою ИИ-систему <em>на предвзятость</em></h2>
+
+    <div class="g2" style="margin-top:6px">
+      <div>
+        <div class="kicker">Шаг 1 · Данные</div>
+        <ol class="list-num">
+          <li>Проанализируйте распределение демографических групп в обучающей выборке.</li>
+          <li>Сравните с целевой популяцией — где дисбаланс?</li>
+          <li>Проверьте наличие прокси-признаков (индекс, вуз, паттерны опыта).</li>
+        </ol>
+      </div>
+      <div>
+        <div class="kicker">Шаг 2 · Модель</div>
+        <ol class="list-num">
+          <li>Запросите у вендора документацию о Fairness-метриках.</li>
+          <li>Проведите собственное тестирование на своих данных.</li>
+          <li>Оцените разницу в ошибках между группами.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="kicker" style="margin-top:22px">Шаг 3 · Мониторинг</div>
+    <div class="bars">
+      <div class="bar">
+        <div class="bar__head"><span>Доля решений, оспоренных через апелляцию</span><b>&lt;5%</b></div>
+        <div class="bar__track"><div class="bar__fill bar__fill--e" style="width:15%"></div></div>
+      </div>
+      <div class="bar">
+        <div class="bar__head"><span>Разница в частоте отказов между группами</span><b>&lt;10%</b></div>
+        <div class="bar__track"><div class="bar__fill bar__fill--a" style="width:30%"></div></div>
+      </div>
+      <div class="bar">
+        <div class="bar__head"><span>Доля решений, объяснённых через SHAP/LIME</span><b>100%</b></div>
+        <div class="bar__track"><div class="bar__fill bar__fill--v" style="width:100%"></div></div>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:16px;border-left-color:var(--crimson)">
+      <div class="callout__title">Красные флаги</div>
+      <p style="margin-bottom:6px">• Вендор отказывается предоставить данные о Fairness-метриках</p>
+      <p style="margin-bottom:6px">• Разница в ошибках между группами превышает 10%</p>
+      <p style="margin-bottom:6px">• Нет механизма апелляции для пострадавших</p>
+      <p>• Модель обучалась на данных старше 2 лет без пересмотра</p>
+    </div>
+
+    <blockquote class="quote">
+      Доверяй, но проверяй. Никакой вендор не даст гарантии справедливости,
+      если вы сами не проведёте независимый аудит на своих данных.
+      <cite>Из книги «Записки директора по ИИ»</cite>
+    </blockquote>
+  </div>
+
+  <div class="page__footer">
+    <span>Алгоритмическая предвзятость · Разбор</span>
+    <span>07 · Аудит</span>
+  </div>
+</section>
+
+<!-- ==================== PAGE 10 · CHECKLIST ==================== -->
+<section class="page">
+  <div class="page__mark">08 · Чек-лист</div>
+  <div class="page__num">10 / 13</div>
+
+  <div style="margin-top:14mm">
+    <div class="kicker">Практический чек-лист</div>
+    <h2 class="h-sec">Что делать<br><em>прямо сейчас</em></h2>
+
+    <div class="callout" style="margin-top:0;border-left-color:var(--crimson);background:linear-gradient(180deg,rgba(159,18,57,.05),transparent)">
+      <div class="callout__title" style="font-size:15px">Для руководителей</div>
+      <p style="margin-bottom:8px"><strong>01.</strong> Проведите аудит всех ИИ-систем, влияющих на людей (найм, оценка, кредитование, льготы).</p>
+      <p style="margin-bottom:8px"><strong>02.</strong> Запросите у вендоров документацию о Fairness-метриках и процедурах тестирования.</p>
+      <p style="margin-bottom:8px"><strong>03.</strong> Внедрите механизм апелляции: человек должен иметь возможность оспорить решение алгоритма.</p>
+      <p><strong>04.</strong> Назначьте ответственного за этику ИИ — с полномочиями остановить проект.</p>
+    </div>
+
+    <div class="callout" style="border-left-color:var(--indigo)">
+      <div class="callout__title">Для HR и комплаенса</div>
+      <p style="margin-bottom:8px"><strong>01.</strong> Проверьте, не используются ли прокси-признаки (почтовый индекс, тип вуза) в моделях скрининга.</p>
+      <p style="margin-bottom:8px"><strong>02.</strong> Убедитесь, что финальное решение о найме принимает человек, а не алгоритм.</p>
+      <p style="margin-bottom:8px"><strong>03.</strong> Задокументируйте процедуру «слепого» ревью отклонённых резюме.</p>
+      <p><strong>04.</strong> Обучите HR-специалистов основам работы ИИ-систем — 62% не знают их устройства.</p>
+    </div>
+
+    <div class="callout" style="border-left-color:var(--emerald)">
+      <div class="callout__title">Для разработчиков</div>
+      <p style="margin-bottom:8px"><strong>01.</strong> Используйте SHAP и LIME для интерпретации решений модели.</p>
+      <p style="margin-bottom:8px"><strong>02.</strong> Тестируйте модель на репрезентативной выборке, а не только на общем датасете.</p>
+      <p style="margin-bottom:8px"><strong>03.</strong> Документируйте ограничения модели и случаи, где она может быть предвзятой.</p>
+      <p><strong>04.</strong> Внедряйте Fairness-метрики на этапе проектирования, а не после запуска.</p>
+    </div>
+
+    <blockquote class="quote" style="margin-top:14px">
+      Алгоритмическая предвзятость — не техническая проблема, которую
+      можно решить «правильным» алгоритмом. Это социотехническая
+      проблема, требующая постоянного внимания, междисциплинарного
+      подхода и лидерства.
+      <cite>Из книги «Записки директора по ИИ»</cite>
+    </blockquote>
+  </div>
+
+  <div class="page__footer">
+    <span>Алгоритмическая предвзятость · Разбор</span>
+    <span>08 · Чек-лист</span>
+  </div>
+</section>
+
+<!-- ==================== PAGE 11 · METRICS ==================== -->
+<section class="page">
+  <div class="page__mark">09 · Метрики</div>
+  <div class="page__num">11 / 13</div>
+
+  <div style="margin-top:14mm">
+    <div class="kicker">Что измерять</div>
+    <h2 class="h-sec">Fairness-метрики<br><em>на практике</em></h2>
+
+    <div class="g2" style="margin-top:6px">
+      <div class="callout" style="margin-top:0;border-left-color:var(--crimson)">
+        <div class="callout__title">Равенство вероятностей</div>
+        <p>Доля положительных исходов должна быть одинаковой для всех групп. Если модель одобряет 70% кандидатов из группы А и 40% из группы Б — есть проблема.</p>
+      </div>
+      <div class="callout" style="margin-top:0;border-left-color:var(--amber)">
+        <div class="callout__title">Равенство ошибок</div>
+        <p>Частота ложноположительных и ложноотрицательных срабатываний должна быть одинаковой. Если модель чаще ошибается на одной группе — это дискриминация.</p>
+      </div>
+      <div class="callout" style="margin-top:0;border-left-color:var(--violet)">
+        <div class="callout__title">Равенство положительных срабатываний</div>
+        <p>Доля правильных положительных решений должна быть одинаковой. Помогает выявить, не «недопредставляет» ли модель одну из групп.</p>
+      </div>
+      <div class="callout" style="margin-top:0;border-left-color:var(--indigo)">
+        <div class="callout__title">Конфликт метрик</div>
+        <p>Нельзя одновременно максимизировать все метрики, если базовая частота событий различается между группами. Нужен осознанный выбор приоритетов.</p>
+      </div>
+    </div>
+
+    <div class="kicker" style="margin-top:22px">Российские ориентиры</div>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat__num">&lt;10<sup>%</sup></div>
+        <div class="stat__label">допустимая разница в частоте отказов между демографическими группами</div>
+        <div class="stat__src">Практика автора</div>
+      </div>
+      <div class="stat">
+        <div class="stat__num">100<sup>%</sup></div>
+        <div class="stat__label">решений должны быть объяснимы через SHAP или LIME</div>
+        <div class="stat__src">Практика автора</div>
+      </div>
+      <div class="stat">
+        <div class="stat__num">5<sup>%</sup></div>
+        <div class="stat__label">максимальная доля решений, оспоренных через апелляцию — выше сигнал о проблеме</div>
+        <div class="stat__src">Практика автора</div>
+      </div>
+      <div class="stat">
+        <div class="stat__num">2</div>
+        <div class="stat__label">года — максимальный срок давности обучающих данных без пересмотра</div>
+        <div class="stat__src">Практика автора</div>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:16px;border-left-color:var(--emerald)">
+      <div class="callout__title">Прогноз автора</div>
+      <p>К 2028 году аудит алгоритмической предвзятости станет такой же стандартной практикой, как финансовый аудит сегодня. Компании, которые начнут строить эту компетенцию сейчас, получат значительное конкурентное преимущество перед теми, кто будет действовать реактивно.</p>
+    </div>
+  </div>
+
+  <div class="page__footer">
+    <span>Алгоритмическая предвзятость · Разбор</span>
+    <span>09 · Метрики</span>
+  </div>
+</section>
+
+<!-- ==================== PAGE 12 · CONCLUSION ==================== -->
+<section class="page">
+  <div class="page__mark">10 · Итоги</div>
+  <div class="page__num">12 / 13</div>
+
+  <div style="margin-top:14mm;display:flex;flex-direction:column;flex:1">
+    <div class="kicker">Итоги разбора</div>
+    <h2 class="h-sec">Предвзятость<br>можно <em>управлять</em></h2>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat__num">4</div>
+        <div class="stat__label">источника предвзятости: данные, репрезентативность, разметка, метрика</div>
+        <div class="stat__src">Из книги</div>
+      </div>
+      <div class="stat">
+        <div class="stat__num">4</div>
+        <div class="stat__label">уровня защиты: превентивный, Fairness-метрики, интерпретируемость, человек в цикле</div>
+        <div class="stat__src">Практика автора</div>
+      </div>
+      <div class="stat">
+        <div class="stat__num">2028</div>
+        <div class="stat__label">прогноз: аудит алгоритмической предвзятости станет стандартной практикой</div>
+        <div class="stat__src">Из книги</div>
+      </div>
+      <div class="stat">
+        <div class="stat__num">1</div>
+        <div class="stat__label">главный принцип: ИИ должен поддерживать, а не заменять человеческое суждение</div>
+        <div class="stat__src">Из книги</div>
+      </div>
+    </div>
+
+    <blockquote class="quote" style="font-size:16px;max-width:620px;margin-top:20px">
+      Не существует «полностью свободного от предвзятости алгоритма».
+      Есть только более или менее справедливые системы, требующие
+      постоянного мониторинга.
+      <cite>Из книги «Записки директора по ИИ»</cite>
+    </blockquote>
+
+    <div class="expert">
+      <div class="expert__photo">
+        <img src="C9FFD587-B19C-4F19-BC04-3869F3C6DBF0.jpeg" alt="Алексей Прохоров">
+      </div>
+      <div>
+        <div class="expert__name">Алексей Прохоров</div>
+        <div class="expert__role">Директор по развитию технологий искусственного интеллекта. Эксперт по цифровой трансформации в госорганах и компаниях. Автор книги «Записки директора по искусственному интеллекту».</div>
+        <div class="expert__links">
+          <a href="https://max.ru/alproailife" target="_blank" rel="noopener">Подписаться → MAX-канал</a>
+          <a href="mailto:director.brands@yandex.ru?subject=Заказ книги">Заказать книгу</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="cta">
+      <h3>Разобрались в предвзятости — пора действовать</h3>
+      <p>Если хотите глубже — в книге «Записки директора по искусственному интеллекту» собраны практические инструменты, кейсы и инсайты, которых не найти в учебниках. А в MAX-канале — свежие разборы регуляторных изменений и практика внедрения ИИ.</p>
+      <div class="cta__meta">
+        <span>13 страниц</span>
+        <span>2026</span>
+        <span>Глава 3.2 · Разбор</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="page__footer">
+    <span>Алгоритмическая предвзятость · Разбор</span>
+    <span>10 · Итоги</span>
+  </div>
+</section>
+
+<!-- ==================== PAGE 13 · SOURCES ==================== -->
+<section class="page">
+  <div class="page__mark">11 · Источники</div>
+  <div class="page__num">13 / 13</div>
+
+  <div style="margin-top:14mm">
+    <div class="kicker">Источники</div>
+    <h2 class="h-sec">Список<br><em>использованных материалов</em></h2>
+
+    <div class="g2" style="margin-top:6px">
+      <div>
+        <div class="kicker">Из книги</div>
+        <ol class="list-num">
+          <li><strong>Глава 3.2.</strong> «Алгоритмическая предвзятость и как с ней бороться».</li>
+          <li><strong>Глава 3.3.</strong> «Создание ответственного и честного ИИ».</li>
+          <li><strong>Глава 3.4.</strong> «Человечность и эмпатия: мой главный щит от ошибок ИИ».</li>
+        </ol>
+      </div>
+      <div>
+        <div class="kicker">Внешние источники</div>
+        <ol class="list-num">
+          <li>NPL (Великобритания). <em>Cognitec FaceVACS-DBScan ID v5.5 bias evaluation</em>. Декабрь 2025.</li>
+          <li>Mobley v. Workday, Inc. Case No. 3:23-cv-03352 (N.D. Cal.).</li>
+          <li>Harper v. Sirius XM Radio, LLC. Case No. 2:25-cv-12031 (E.D. Mich.).</li>
+          <li>Kistler v. Eightfold AI Inc. Case No. C26-00214 (Cal. Super. Ct.).</li>
+          <li>Банк России. <em>Кодекс этики в сфере ИИ на финансовом рынке</em>. Июль 2025.</li>
+          <li>Минцифры России. <em>Законопроект «Об основах государственного регулирования сфер применения ИИ»</em>. Март 2026.</li>
+          <li>Блануца В.И. <em>Дискриминация российских регионов в кластеризации на основе нейросети Кохонена</em>. Экономика. Информатика. 2025. Т.52, №1.</li>
+          <li>Саджая Л.В. <em>Ценностная предвзятость в российских системах ИИ</em>. Вопросы политологии. №10-2025.</li>
+          <li>Технологии доверия. <em>Опрос HR-специалистов</em>. 2025. N=500.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:20px;border-left-color:var(--crimson)">
+      <div class="callout__title">Примечание</div>
+      <p>Разбор основан на главе 3.2 книги «Записки директора по искусственному интеллекту» Алексея Прохорова. Российские примеры и данные добавлены из открытых источников и подтверждены ссылками. Прогнозы и практические рекомендации — авторская позиция.</p>
+    </div>
+
+    <div class="cta" style="margin-top:16px">
+      <h3>Хотите глубже?</h3>
+      <p>В книге — 13 глав, 163 страницы, 14 ИИ-агентов в персональном совете директоров и честная история о том, как управлять технологиями будущего, не теряя человечности.</p>
+      <div class="cta__meta">
+        <span>163 страницы</span>
+        <span>2026</span>
+        <span>«Записки директора по ИИ»</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="page__footer">
+    <span>Алгоритмическая предвзятость · Разбор</span>
+    <span>11 · Источники</span>
+  </div>
+</section>
+
+</main>
+
+<script>
+async function downloadPDF(){
+  const btn = document.getElementById('downloadBtn');
+  const label = document.getElementById('downloadText');
+  const original = label.textContent;
+
+  if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
+    alert('Библиотека ещё загружается. Подождите пару секунд и попробуйте снова.');
+    return;
+  }
+
+  btn.disabled = true;
+  label.textContent = 'Готовим PDF…';
+
+  try {
+    const { jsPDF } = window.jspdf;
+    const A4_W = 210, A4_H = 297;
+    const pages = document.querySelectorAll('.page');
+    let pdf = null;
+
+    for (let i = 0; i < pages.length; i++) {
+      const pageEl = pages[i];
+
+      const pageRect = pageEl.getBoundingClientRect();
+      const links = [];
+      pageEl.querySelectorAll('a[href]').forEach(a => {
+        const r = a.getBoundingClientRect();
+        links.push({
+          href: a.href,
+          x: r.left - pageRect.left,
+          y: r.top - pageRect.top,
+          w: r.width,
+          h: r.height
+        });
+      });
+
+      const canvas = await html2canvas(pageEl, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#FDFCF9',
+        width: pageEl.offsetWidth,
+        height: pageEl.offsetHeight,
+        windowWidth: pageEl.offsetWidth,
+        windowHeight: pageEl.offsetHeight
+      });
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+      if (i === 0) {
+        pdf = new jsPDF({ unit:'mm', format:[A4_W, A4_H], orientation:'portrait', compress:true });
+      } else {
+        pdf.addPage([A4_W, A4_H], 'portrait');
+      }
+
+      const imgRatio = canvas.width / canvas.height;
+      const pageRatio = A4_W / A4_H;
+      let imgW, imgH, offsetX, offsetY;
+
+      if (imgRatio > pageRatio) {
+        imgW = A4_W;
+        imgH = A4_W / imgRatio;
+        offsetX = 0;
+        offsetY = (A4_H - imgH) / 2;
+      } else {
+        imgH = A4_H;
+        imgW = A4_H * imgRatio;
+        offsetX = (A4_W - imgW) / 2;
+        offsetY = 0;
+      }
+
+      pdf.addImage(imgData, 'JPEG', offsetX, offsetY, imgW, imgH, undefined, 'FAST');
+
+      const pxToMmX = imgW / pageEl.offsetWidth;
+      const pxToMmY = imgH / pageEl.offsetHeight;
+
+      links.forEach(l => {
+        pdf.link(
+          offsetX + l.x * pxToMmX,
+          offsetY + l.y * pxToMmY,
+          l.w * pxToMmX,
+          l.h * pxToMmY,
+          { url: l.href }
+        );
+      });
+    }
+
+    pdf.save('algoritmicheskaya-predvzyatost-razbor.pdf');
+    label.textContent = 'Готово!';
+    setTimeout(() => { label.textContent = original; }, 1800);
+  } catch (err) {
+    console.error(err);
+    alert('Ошибка при создании PDF: ' + err.message);
+    label.textContent = original;
+  } finally {
+    btn.disabled = false;
+  }
+}
+</script>
+
+<script>
+(function fitPages(){
+  document.querySelectorAll('.page:not(.cover)').forEach(function(page){
+    let wrap = page.querySelector(':scope > .fit-wrap');
+    if (!wrap) {
+      wrap = document.createElement('div');
+      wrap.className = 'fit-wrap';
+      Array.from(page.children).forEach(function(ch){
+        if (!ch.classList.contains('page__mark') &&
+            !ch.classList.contains('page__num')  &&
+            !ch.classList.contains('page__footer')) {
+          wrap.appendChild(ch);
+        }
+      });
+      page.appendChild(wrap);
+    }
+
+    wrap.style.transform = '';
+    wrap.style.width = '';
+    const cs = getComputedStyle(page);
+    const avail = page.clientHeight
+                - parseFloat(cs.paddingTop)
+                - parseFloat(cs.paddingBottom)
+                - 20;
+    const real = wrap.scrollHeight;
+
+    if (real > avail) {
+      const k = avail / real;
+      wrap.style.transformOrigin = 'top left';
+      wrap.style.transform = 'scale(' + k + ')';
+      wrap.style.width = (100 / k) + '%';
+    }
+  });
+})();
+
+window.addEventListener('load', fitPages);
+window.addEventListener('resize', fitPages);
+window.addEventListener('beforeprint', fitPages);
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+</body>
+</html>
